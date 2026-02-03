@@ -9,6 +9,7 @@ app.use(express.json());
 
 app.post("/contact", async (req, res) => {
   const { name, email, message } = req.body;
+console.log("POST /contact reçu :", name, email, message);
 
   try {
     const transporter = nodemailer.createTransport({
@@ -25,9 +26,10 @@ app.post("/contact", async (req, res) => {
       subject: "Nouveau message - Site NART",
       text: `Nom: ${name}\nEmail: ${email}\nMessage: ${message}`
     });
-
+    console.log("Email envoyé avec succès");
     res.json({ message: "Message envoyé avec succès !" });
   } catch (error) {
+  console.error("Erreur Nodemailer :", error);
     res.status(500).json({ message: "Erreur lors de l'envoi." });
   }
 });
