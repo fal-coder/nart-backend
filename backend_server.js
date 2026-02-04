@@ -1,6 +1,19 @@
+const cors = require('cors');
 const express = require('express');
 const brevo = require('@getbrevo/brevo');
 const app = express();
+
+// ⭐ CORS - IMPORTANT : À mettre AVANT les autres app.use()
+app.use(cors({
+  origin: [
+    'https://6982f2292174791180ce84db--precious-sorbet-cf006d.netlify.app',
+    'https://precious-sorbet-cf006d.netlify.app', // Au cas où vous ayez un domaine principal
+    'http://localhost:3000', // Pour tester en local
+    'http://localhost:5173'  // Si vous utilisez Vite
+  ],
+  methods: ['GET', 'POST', 'OPTIONS'],
+  credentials: true
+}));
 
 app.use(express.json());
 app.use(express.static('public')); // ou votre dossier frontend
