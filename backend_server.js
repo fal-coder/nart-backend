@@ -7,14 +7,12 @@ app.use(express.static('public')); // ou votre dossier frontend
 
 // Configuration API Brevo
 let apiInstance = new brevo.TransactionalEmailsApi();
- console.log('configuration brevo process.env.BREVO_API_KEY');
-
+console.log('🔧 Configuration Brevo...');
 apiInstance.setApiKey(
   brevo.TransactionalEmailsApiApiKeys.apiKey,
-  process.env.BREVO_API_KEY || 'VOTRE_CLE_API_TEMPORAIRE'
+  process.env.BREVO_API_KEY
 );
-
-console.log(' fin configuration brevo brevo.TransactionalEmailsApiApiKeys.apiKey process.env.BREVO_API_KEY');
+console.log('✅ Brevo configuré');
 
 // Route de contact
 app.post('/contact', async (req, res) => {
@@ -63,4 +61,10 @@ app.post('/contact', async (req, res) => {
       error: 'Erreur lors de l\'envoi' 
     });
   }
+});
+
+// Démarrage du serveur (OBLIGATOIRE !)
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Serveur démarré sur le port ${PORT}`);
 });
