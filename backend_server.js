@@ -6,8 +6,8 @@ const app = express();
 // ⭐ CORS - IMPORTANT : À mettre AVANT les autres app.use()
 app.use(cors({
   origin: [
-    'https://6982f2292174791180ce84db--precious-sorbet-cf006d.netlify.app',
-    'https://precious-sorbet-cf006d.netlify.app', // Au cas où vous ayez un domaine principal
+    'https://698369c61edf0e189b1d0665--nart-site.netlify.app',
+    'https://nart-site.netlify.app// Au cas où vous ayez un domaine principal
     'http://localhost:3000', // Pour tester en local
     'http://localhost:5173'  // Si vous utilisez Vite
   ],
