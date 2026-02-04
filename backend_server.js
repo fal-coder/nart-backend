@@ -7,16 +7,16 @@ const app = express();
 app.use(cors({
   origin: [
     'https://698369c61edf0e189b1d0665--nart-site.netlify.app',
-    'https://nart-site.netlify.app// Au cas où vous ayez un domaine principal
-    'http://localhost:3000', // Pour tester en local
-    'http://localhost:5173'  // Si vous utilisez Vite
+    'https://nart-site.netlify.app',
+    'http://localhost:3000',
+    'http://localhost:5173'
   ],
   methods: ['GET', 'POST', 'OPTIONS'],
   credentials: true
 }));
 
 app.use(express.json());
-app.use(express.static('public')); // ou votre dossier frontend
+app.use(express.static('public'));
 
 // Configuration API Brevo
 let apiInstance = new brevo.TransactionalEmailsApi();
@@ -28,8 +28,6 @@ apiInstance.setApiKey(
 console.log('✅ Brevo configuré');
 
 // Route de contact
-
-
 app.post('/contact', async (req, res) => {
   const { nom, email, message } = req.body;
   
@@ -40,7 +38,7 @@ app.post('/contact', async (req, res) => {
     
     sendSmtpEmail.sender = { 
       email: process.env.SENDER_EMAIL,
-      name: 'Mon Site Web - Formulaire Contact'  // ← Nom clair
+      name: 'Mon Site Web - Formulaire Contact'
     };
     
     sendSmtpEmail.to = [{ 
@@ -52,10 +50,8 @@ app.post('/contact', async (req, res) => {
       name: nom
     };
     
-    // ✨ Sujet plus professionnel
     sendSmtpEmail.subject = `[Formulaire Contact] Nouveau message de ${nom}`;
     
-    // ✨ Version HTML + texte brut (important !)
     sendSmtpEmail.htmlContent = `
       <!DOCTYPE html>
       <html lang="fr">
@@ -90,7 +86,6 @@ app.post('/contact', async (req, res) => {
       </html>
     `;
     
-    // ✨ IMPORTANT : Version texte brut (évite les spams)
     sendSmtpEmail.textContent = `
 NOUVEAU MESSAGE DE CONTACT
 ==========================
@@ -121,9 +116,7 @@ Pour répondre, utilisez l'adresse: ${email}
   }
 });
 
-
-
-// Démarrage du serveur (OBLIGATOIRE !)
+// Démarrage du serveur
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Serveur démarré sur le port ${PORT}`);
