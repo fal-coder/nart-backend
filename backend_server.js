@@ -1,40 +1,62 @@
-const express = require("express");
-const cors = require("cors");
-const nodemailer = require("nodemailer");
-require("dotenv").config();
-
+const express = require('express');
+const brevo = require('@getbrevo/brevo');
 const app = express();
-app.use(cors());
+
 app.use(express.json());
+app.use(express.static('public')); // ou votre dossier frontend
 
-app.post("/contact", async (req, res) => {
-  const { name, email, message } = req.body;
-console.log("POST /contact reçu :", name, email, message);
+// Configuration API Brevo
+let apiInstance = new brevo.TransactionalEmailsApi();
+apiInstance.setApiKey(
+  brevo.TransactionalEmailsApiApiKeys.apiKey,
+  process.env.BREVO_API_KEY || 'VOTRE_CLE_API_TEMPORAIRE'
+);
 
+// Route de contact
+app.post('/contact', async (req, res) => {
+  const { nom, email, message } = req.body;
+  
+  console.log('POST /contact reçu :', nom, email, message);
+  
   try {
-  const transporter = nodemailer.createTransport({
-  host: process.env.BREVO_SMTP_HOST,
-  port: process.env.BREVO_SMTP_PORT,
-  secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
-
-    await transporter.sendMail({
-      from: email,
-      to: process.env.EMAIL_USER,
-      subject: "Nouveau message - Site NART",
-      text: `Nom: ${name}\nEmail: ${email}\nMessage: ${message}`
-    });
-    console.log("Email envoyé avec succès");
-    res.json({ message: "Message envoyé avec succès !" });
+    const sendSmtpEmail = new brevo.SendSmtpEmail();
+    
+    // Utilisation des variables d'environnement
+    sendSmtpEmail.sender = { 
+      email: process.env.SENDER_EMAIL,
+      name: process.env.SENDER_NAME
+    };
+    
+    sendSmtpEmail.to = [{ 
+      email: process.env.RECIPIENT_EMAIL
+    }];
+    
+    // Pour pouvoir répondre directement au visiteur
+    sendSmtpEmail.replyTo = {
+      email: email,
+      name: nom
+    };
+    
+    sendSmtpEmail.subject = `Nouveau message de ${nom}`;
+    
+    sendSmtpEmail.htmlContent = `
+      <h2>Nouveau message de contact</h2>
+      <p><strong>Nom :</strong> ${nom}</p>
+      <p><strong>Email :</strong> ${email}</p>
+      <p><strong>Message :</strong></p>
+      <p>${message}</p>
+    `;
+    
+    await apiInstance.sendTransacEmail(sendSmtpEmail);
+    
+    console.log('✅ Email envoyé avec succès à', process.env.RECIPIENT_EMAIL);
+    res.json({ success: true, message: 'Message envoyé !' });
+    
   } catch (error) {
-  console.error("Erreur Nodemailer :", error);
-    res.status(500).json({ message: "Erreur lors de l'envoi." });
+    console.error('❌ Erreur API Brevo :', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Erreur lors de l\'envoi' 
+    });
   }
 });
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log("Serveur lancé sur le port " + PORT));
